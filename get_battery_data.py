@@ -17,13 +17,13 @@ print('timestamp, latitude, longitude, Vbatt, Vcurr, SOC')
 
 while True:
     print(agps_thread.data_stream.time + ',', end='')
-    print(agps_thread.data_stream.lat + ',', end='')
-    print(agps_thread.data_stream.lon + ',', end='')
+    print(str(agps_thread.data_stream.lat) + ',', end='')
+    print(str(agps_thread.data_stream.lon) + ',', end='')
 #    print(agps_thread.data_stream.speed
 #    print(agps_thread.data_stream.track)
-    print(controller.get_battery_voltage() + ',', end='')
-    print(controller.get_battery_current() + ',', end='')
-    print(controller.get_battery_state_of_charge())
+    print(str(controller.get_battery_voltage()) + ',', end='')
+    print(str(controller.get_battery_current()) + ',', end='')
+    print(str(controller.get_battery_state_of_charge()))
     sleep(0.9)
 
 # controller.get_solar_voltage
