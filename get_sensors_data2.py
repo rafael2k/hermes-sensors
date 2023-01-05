@@ -60,7 +60,5 @@ class RepeatedTimer(object):
 # start timer
 timer = RepeatedTimer(1, sensors)
 
-sleep(10)
-
-# stop timer
-timer.stop()
+# stop timer... if we want to.
+#timer.stop()
