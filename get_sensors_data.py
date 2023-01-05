@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-from time import sleep
 
+import time
 from epevermodbus.driver import EpeverChargeController
 from gps3.agps3threaded import AGPS3mechanism
 
@@ -11,11 +11,15 @@ agps_thread = AGPS3mechanism()  # Instantiate AGPS3 Mechanisms
 agps_thread.stream_data()  # From localhost (), or other hosts, by example, (host='gps.ddns.net')
 agps_thread.run_thread()  # Throttle time to sleep after an empty lookup, default 0.2 second, default daemon=True
 
-sleep(1)
+time.sleep(1)
 
 print('timestamp, latitude, longitude, Vbatt, Abatt, SOC')
 
+delay = 1
+next_time = time.time() + delay
 while True:
+    time.sleep(max(0, next_time - time.time()))
+
     print(agps_thread.data_stream.time + ',', end='')
     print(str(agps_thread.data_stream.lat) + ',', end='')
     print(str(agps_thread.data_stream.lon) + ',', end='')
@@ -24,7 +28,7 @@ while True:
     print(str(controller.get_battery_voltage()) + ',', end='')
     print(str(controller.get_battery_current()) + ',', end='')
     print(str(controller.get_battery_state_of_charge()))
-    sleep(0.9)
+    next_time += delay
 
 # controller.get_solar_voltage
 # controller.get_load_voltage
