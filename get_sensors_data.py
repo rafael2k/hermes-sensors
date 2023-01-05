@@ -13,7 +13,7 @@ agps_thread.run_thread()  # Throttle time to sleep after an empty lookup, defaul
 
 sleep(1)
 
-print('timestamp, latitude, longitude, Vbatt, Vcurr, SOC')
+print('timestamp, latitude, longitude, Vbatt, Abatt, SOC')
 
 while True:
     print(agps_thread.data_stream.time + ',', end='')
