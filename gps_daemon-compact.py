@@ -39,7 +39,9 @@ while True:
 
     time.sleep(max(0, next_time - time.time()))
 
-    fd.write(agps_thread.data_stream.time + ",")
+    fd.write(datetime.datetime.utcnow().strftime("%s") + ",")
+
+    # fd.write(agps_thread.data_stream.time + ",")
     fd.write(str(agps_thread.data_stream.lat) + ",")
     fd.write(str(agps_thread.data_stream.lon) + "\n")
 
