@@ -16,7 +16,7 @@ agps_thread.run_thread()  # Throttle time to sleep after an empty lookup, defaul
 try:
     os.mkdir(path)
 except OSError as error:
-    print("Directory" + path + "already created. Good.")
+    print("Directory" + path + " already created. Good.")
 
 time.sleep(1)
 next_time = time.time() + delay
@@ -25,7 +25,7 @@ counter = 0
 ct = datetime.datetime.now().isoformat(timespec='minutes')
 path_file = os.path.join(path, ct)
 fd = open(path_file  + ".csv","w")
-fd.write("Time Stamp, Latitude, Latitude")
+fd.write("Time Stamp, Latitude, Longitude\n")
 
 while True:
 
@@ -34,15 +34,14 @@ while True:
         ct = datetime.datetime.now().isoformat(timespec='minutes')
         path_file = os.path.join(path, ct)
         fd = open(path_file + ".csv","w")
-        fd.write("Time Stamp, Latitude, Latitude")
+        fd.write("Time Stamp, Latitude, Longitude\n")
         counter = 0
 
     time.sleep(max(0, next_time - time.time()))
 
     fd.write(agps_thread.data_stream.time + ",")
-    fd.write(agps_thread.data_stream.time + ",")
     fd.write(str(agps_thread.data_stream.lat) + ",")
-    fd.write(str(agps_thread.data_stream.lon) + ",")
+    fd.write(str(agps_thread.data_stream.lon) + "\n")
 
     next_time += delay
     counter += 1
