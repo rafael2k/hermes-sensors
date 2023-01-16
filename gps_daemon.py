@@ -24,7 +24,7 @@ counter = 0
 
 ct = datetime.datetime.now().isoformat(timespec='minutes')
 path_file = os.path.join(path, ct)
-fd = open(path_file  + ".csv","w")
+fd = open(path_file  + ".csv","w", 1)
 fd.write("Time Stamp, Latitude, Longitude\n")
 
 while True:
@@ -33,7 +33,7 @@ while True:
         fd.close(fd)
         ct = datetime.datetime.now().isoformat(timespec='minutes')
         path_file = os.path.join(path, ct)
-        fd = open(path_file + ".csv","w")
+        fd = open(path_file + ".csv","w", 1)
         fd.write("Time Stamp, Latitude, Longitude\n")
         counter = 0
 
