@@ -45,7 +45,7 @@ while True:
     fd.write(str(agps_thread.data_stream.lon) + ",")
 
     next_time += delay
-    count += 1
+    counter += 1
 # controller.get_solar_voltage
 # controller.get_load_voltage
 #
