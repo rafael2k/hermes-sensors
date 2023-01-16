@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     // skip the first line
     while (getc(fin) != '\n');
 
-    while (fscanf(fin, ("%u,%f,%f\n"), &time_stamp, lat, lon) != EOF)
+    while (fscanf(fin, "%u,%f,%f\n", &time_stamp, &lat, &lon) != EOF)
     {
         fwrite(&time_stamp, 4, 1, fout);
         fwrite(&lat, 4, 1, fout);
