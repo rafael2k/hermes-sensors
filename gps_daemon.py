@@ -23,8 +23,8 @@ next_time = time.time() + delay
 counter = 0
 
 ct = datetime.datetime.now().isoformat(timespec='minutes')
-path_file = os.path.join(path + ".csv", ct)
-fd = open(path_file,"wb")
+path_file = os.path.join(path, ct)
+fd = open(path_file  + ".csv","wb")
 fd.write("Time Stamp, Latitude, Latitude")
 
 while True:
