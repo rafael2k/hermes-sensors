@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-
+import os
+import datetime
 import time
 from gps3.agps3threaded import AGPS3mechanism
 
@@ -21,8 +22,7 @@ time.sleep(1)
 next_time = time.time() + delay
 counter = 0
 
-ct = datetime.datetime.now()
-ct.replace(" ", "_")
+ct = datetime.datetime.now().isoformat(timespec='minutes')
 path_file = os.path.join(path, ct)
 fd = open(path_file,"wb")
 fd.write("Time Stamp, Latitude, Latitude")
@@ -31,8 +31,7 @@ while True:
 
     if counter == time_to_create_dump:
         fd.close(fd)
-        ct = datetime.datetime.now()
-        ct.replace(" ", "_")
+        ct = datetime.datetime.now().isoformat(timespec='minutes')
         path_file = os.path.join(path, ct)
         fd = open(path_file,"wb")
         fd.write("Time Stamp, Latitude, Latitude")
