@@ -6,10 +6,10 @@
 
 all: encode decode
 
-encode:
+encode: encode.c
 	gcc encode.c -o encode
 
-decode:
+decode: decode.c
 	gcc decode.c -o decode
 
 .PHONY:clean

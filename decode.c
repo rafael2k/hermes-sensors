@@ -12,10 +12,12 @@ int main(int argc, char *argv[])
 
     uint8_t buffer[12];
 
-    // skip the first line
     fprintf(fout, "Time Stamp, Latitude, Longitude\n");
     while (fread(buffer, 12, 1, fin))
     {
-        fprintf(fout, "%u,%f,%f\n", (uint32_t) buffer[0], (float) buffer[4], (float) buffer[8]);
+        time_stamp = *((uint32_t *)buffer);
+        lat = *((float *) (buffer + 4));
+        lon = *((float *) (buffer + 8));
+        fprintf(fout, "%u,%f,%f\n", time_stamp, lat, lon);
     }
 }
