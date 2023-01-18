@@ -4,6 +4,8 @@ import datetime
 import time
 from gps3.agps3threaded import AGPS3mechanism
 
+destination_email="rafael@riseup.net"
+
 delay = 1 # delay between each sampling
 time_to_create_dump = 3600 # time in seconds between each report
 
@@ -31,6 +33,8 @@ while True:
 
     if counter == time_to_create_dump:
         fd.close()
+        cmd_string = 'echo -e "HERMES monitoring system email" | mail -A ' + path_file + ' -s "HERMES SYSTEM" ' + destination_email
+        os.system(cmd_string)
         ct = datetime.datetime.now().isoformat(timespec='minutes')
         path_file = os.path.join(path, ct)
         fd = open(path_file + ".csv","w", 1)
