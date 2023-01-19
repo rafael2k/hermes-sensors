@@ -25,8 +25,8 @@ next_time = time.time() + delay
 counter = 0
 
 ct = datetime.datetime.now().isoformat(timespec='minutes')
-path_file = os.path.join(path, ct)
-fd = open(path_file  + ".csv","w", 1)
+path_file = os.path.join(path, ct + ".csv")
+fd = open(path_file,"w", 1)
 fd.write("Time Stamp, Latitude, Longitude\n")
 
 while True:
@@ -36,8 +36,8 @@ while True:
         cmd_string = 'echo -e "HERMES monitoring system email" | mail --content-type=text/csv --encoding=base64 --attach="' + path_file + '" -s "HERMES SYSTEM" ' + destination_email
         os.system(cmd_string)
         ct = datetime.datetime.now().isoformat(timespec='minutes')
-        path_file = os.path.join(path, ct)
-        fd = open(path_file + ".csv","w", 1)
+        path_file = os.path.join(path, ct + ".csv")
+        fd = open(path_file,"w", 1)
         fd.write("Time Stamp, Latitude, Longitude\n")
         counter = 0
 

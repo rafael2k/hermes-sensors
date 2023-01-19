@@ -3,17 +3,21 @@ import os
 import datetime
 import time
 from gps3.agps3threaded import AGPS3mechanism
+from epevermodbus.driver import EpeverChargeController
+
 
 destination_email="rafael@riseup.net"
 
 delay = 1 # delay between each sampling
 time_to_create_dump = 3600 # time in seconds between each report
 
-path="/var/spool/gps/"
+path="/var/spool/gps_battery/"
 
 agps_thread = AGPS3mechanism()  # Instantiate AGPS3 Mechanisms
 agps_thread.stream_data()  # From localhost (), or other hosts, by example, (host='gps.ddns.net')
 agps_thread.run_thread()  # Throttle time to sleep after an empty lookup, default 0.2 second, default daemon=True
+
+controller = EpeverChargeController("/dev/ttyUSB1", 1)
 
 try:
     os.mkdir(path)
@@ -26,8 +30,8 @@ counter = 0
 
 ct = datetime.datetime.now().isoformat(timespec='minutes')
 path_file = os.path.join(path, ct + ".csv")
-fd = open(path_file,"w", 1)
-fd.write("Time Stamp, Latitude, Longitude\n")
+fd = open(path_file, "w", 1)
+fd.write("Time Stamp, Latitude, Longitude, Vbatt, Abatt, SOC\n")
 
 while True:
 
@@ -38,16 +42,17 @@ while True:
         ct = datetime.datetime.now().isoformat(timespec='minutes')
         path_file = os.path.join(path, ct + ".csv")
         fd = open(path_file,"w", 1)
-        fd.write("Time Stamp, Latitude, Longitude\n")
+        fd.write("Time Stamp, Latitude, Longitude, Vbatt, Abatt, SOC\n")
         counter = 0
 
     time.sleep(max(0, next_time - time.time()))
 
-    fd.write(datetime.datetime.utcnow().strftime("%s") + ",")
-
-    # fd.write(agps_thread.data_stream.time + ",")
+    fd.write(agps_thread.data_stream.time + ",")
     fd.write(str(agps_thread.data_stream.lat) + ",")
-    fd.write(str(agps_thread.data_stream.lon) + "\n")
+    fd.write(str(agps_thread.data_stream.lon) + ",")
+    fd.write(str(controller.get_battery_voltage()) + ',')
+    fd.write(str(controller.get_battery_current()) + ',')
+    fd.write(str(controller.get_battery_state_of_charge()) + "\n")
 
     next_time += delay
     counter += 1
