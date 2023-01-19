@@ -4,16 +4,18 @@
 # @file
 # @version 0.1
 
-all: encode decode
+CC=gcc
 
-encode: encode.c
-	gcc encode.c -o encode
+all: encode-gps_only decode-gps_only
 
-decode: decode.c
-	gcc decode.c -o decode
+encode-gps_only: encode-gps_only.c
+	$(CC) encode-gps_only.c -o encode-gps_only
+
+decode-gps_only: decode-gps_only.c
+	$(CC) decode-gps_only.c -o decode-gps_only
 
 .PHONY:clean
 clean:
-	rm -f decode encode
+	rm -f decode-gps_only encode-gps_only
 
 # end
