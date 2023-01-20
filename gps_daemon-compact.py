@@ -33,7 +33,16 @@ while True:
 
     if counter == time_to_create_dump:
         fd.close()
-        cmd_string = 'echo -e "HERMES monitoring system email" | mail --content-type=text/csv --encoding=base64 --attach="' + path_file + '" -s "HERMES SYSTEM" ' + destination_email
+        # cmd_string = 'echo -e "HERMES monitoring system email" | mail --content-type=text/csv --encoding=base64 --attach="' + path_file + '" -s "HERMES SYSTEM" ' + destination_email
+        # os.system(cmd_string)
+        cmd_string = 'encode-gps_only ' + path_file + ' ' + path_file + '.bin'
+        print(cmd_string)
+        os.system(cmd_string)
+        cmd_string = 'xz -9e ' + path_file + '.bin'
+        print(cmd_string)
+        os.system(cmd_string)
+        cmd_string = 'uux -r - gw\!uuxsensor < ' + path_file + '.bin.xz'
+        print(cmd_string)
         os.system(cmd_string)
         ct = datetime.datetime.now().isoformat(timespec='minutes')
         path_file = os.path.join(path, ct + ".csv")
