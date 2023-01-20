@@ -20,6 +20,12 @@ encode-gps_battery: encode-gps_battery.c
 decode-gps_battery: decode-gps_battery.c
 	$(CC) decode-gps_battery.c -o decode-gps_battery
 
+install: encode-gps_only decode-gps_only encode-gps_battery decode-gps_battery
+	install -D encode-gps_only /usr/bin/encode-gps_only
+	install -D decode-gps_only /usr/bin/decode-gps_only
+	install -D encode-gps_battery /usr/bin/encode-gps_battery
+	install -D decode-gps_battery /usr/bin/decode-gps_battery
+
 .PHONY:clean
 clean:
 	rm -f decode-gps_only encode-gps_only encode-gps_battery decode-gps_battery
