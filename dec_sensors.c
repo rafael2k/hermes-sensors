@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     // write the payload to file
     char compressed_payload_filename[MAX_FILENAME];
-    sprintf(compressed_payload_filename, "/tmp/uuxsensor.comp.%d", getpid ());
+    sprintf(compressed_payload_filename, "/tmp/dec_sensors.comp.%d", getpid ());
     FILE *compressed_fd = fopen(compressed_payload_filename, "w");
     fwrite(message_payload, message_size, 1, compressed_fd);
     fclose(compressed_fd);
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
     // uncompress the file
     char uncompressed_payload_filename[MAX_FILENAME];
-    sprintf(uncompressed_payload_filename, "/tmp/uuxsensor.decomp.%d", getpid ());
+    sprintf(uncompressed_payload_filename, "/tmp/dec_sensors.decomp.%d", getpid ());
     char cmd_uncompress[CMD_LENGTH];
     sprintf(cmd_uncompress, "paq8px -d %s %s", compressed_payload_filename, uncompressed_payload_filename);
     printf("%s\n", cmd_uncompress);
@@ -86,10 +86,16 @@ int main(int argc, char *argv[])
     fread(uncompressed_payload_buffer, uncompressed_payload_size, 1, uncompressed_payload);
     fclose(uncompressed_payload);
 
+    // get first timestamp to put in the file name
+    char first_timestamp[80];
+    struct tm  ts; uint32_t time_stamp;
+    time_stamp = *((uint32_t *)uncompressed_payload_buffer);
+    ts = *localtime((time_t *)&time_stamp);
+    strftime(first_timestamp, sizeof(first_timestamp), "%Y-%m-%d_%H.%M.%S", &ts);
 
     // now write the csv
     char csv_output_filename[MAX_FILENAME];
-    sprintf(csv_output_filename, "/tmp/uuxsensor.csv.%d", getpid ());
+    sprintf(csv_output_filename, "/tmp/sensors-%s.csv", first_timestamp);
     FILE *csv_fd = fopen(csv_output_filename, "w");
 
 #if (OPERARION_MODE == GPS_AND_BATTERY)
@@ -101,14 +107,13 @@ int main(int argc, char *argv[])
 
 
     uint8_t *buffer = uncompressed_payload_buffer;
+
     while (buffer < uncompressed_payload_buffer + uncompressed_payload_size)
     {
-        uint32_t time_stamp;
         uint8_t soc;
         float lat, lon, vbatt, abatt;
-        struct tm  ts;
-        char       buf[80];
 
+        char       buf[80];
         time_stamp = *((uint32_t *)buffer);
         ts = *localtime((time_t *)&time_stamp);
 // strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
@@ -141,16 +146,16 @@ int main(int argc, char *argv[])
 
     if (email != NULL)
     {
-        sprintf(mail_cmd, "echo -e \"HERMES monitoring system email\" | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" \"%s\"", csv_output_filename, email);
+        sprintf(mail_cmd, "echo HERMES monitoring system email | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" \"%s\"", csv_output_filename, email);
         printf("%s\n", mail_cmd);
         system(mail_cmd);
         unlink(csv_output_filename);
     }
     else {
-        sprintf(mail_cmd, "echo -e \"HERMES monitoring system email\" | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" %s", csv_output_filename, EMAIL);
+        sprintf(mail_cmd, "echo HERMES monitoring system email | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" %s", csv_output_filename, EMAIL);
         printf("%s\n", mail_cmd);
         system(mail_cmd);
-//        unlink(csv_output_filename);
+        unlink(csv_output_filename);
         printf("Output is at: %s\n", csv_output_filename);
     }
 
