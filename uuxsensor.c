@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
     }
     else {
         sprintf(mail_cmd, "echo -e \"HERMES monitoring system email\" | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" rafael@riseup.net", csv_output_filename);
+        printf("%s\n", mail_cmd);
         system(mail_cmd);
 //        unlink(csv_output_filename);
         printf("Output is at: %s\n", csv_output_filename);
