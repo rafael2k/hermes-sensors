@@ -37,6 +37,24 @@ while True:
 
     if counter == time_to_create_dump:
         fd.close()
+        # cmd_string = 'echo -e "HERMES monitoring system email" | mail --content-type=text/csv --encoding=base64 --attach="' + path_file + '" -s "HERMES SYSTEM" ' + destination_email
+        # os.system(cmd_string)
+        cmd_string = 'encode-gps_battery' + path_file + ' ' + path_file + '.bin'
+        print(cmd_string)
+        os.system(cmd_string)
+        cmd_string = 'paq8px -3-9e ' + path_file + '.bin'
+        print(cmd_string)
+        os.system(cmd_string)
+        cmd_string = 'uux -r - gw\!uuxsensor < ' + path_file + '.bin.xz'
+        print(cmd_string)
+        os.system(cmd_string)
+        ct = datetime.datetime.now().isoformat(timespec='minutes')
+        path_file = os.path.join(path, ct + ".csv")
+        fd = open(path_file,"w", 1)
+        fd.write("Time Stamp, Latitude, Longitude\n")
+        counter = 0
+
+        fd.close()
 #       paq8px -3
         cmd_string = 'echo -e "HERMES monitoring system email" | mail --content-type=text/csv --encoding=base64 --attach="' + path_file + '" -s "HERMES SYSTEM" ' + destination_email
         os.system(cmd_string)
