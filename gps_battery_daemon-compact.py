@@ -37,6 +37,7 @@ while True:
 
     if counter == time_to_create_dump:
         fd.close()
+#       paq8px -3
         cmd_string = 'echo -e "HERMES monitoring system email" | mail --content-type=text/csv --encoding=base64 --attach="' + path_file + '" -s "HERMES SYSTEM" ' + destination_email
         os.system(cmd_string)
         ct = datetime.datetime.now().isoformat(timespec='minutes')
