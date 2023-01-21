@@ -25,6 +25,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdbool.h>
+#include <string.h>
 
 #define GPS_ONLY 0
 #define GPS_AND_BATTERY 1
@@ -41,6 +43,47 @@
 
 int main(int argc, char *argv[])
 {
+    int operation_mode;
+    char email[BUF_SIZE];
+    bool email_set = false;
+
+    if (argc < 2)
+    {
+    manual:
+        fprintf(stderr, "Usage: \n%s [-g -b] [-e e-mail]\n", argv[0]);
+        fprintf(stderr, "%s -h\n", argv[0]);
+        fprintf(stderr, "\nOptions:\n");
+        fprintf(stderr, " -g                 Runs GPS_ONLY mode\n");
+        fprintf(stderr, " -b                 Runs GPS_AND_BATTERY mode\n");
+        fprintf(stderr, " -h                 Prints this help.\n");
+        fprintf(stderr, " -e e-mail          Optional field. Sets the destination e-mail address\n\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int opt;
+    while ((opt = getopt(argc, argv, "hgbe:")) != -1)
+    {
+        switch (opt)
+        {
+        case 'h':
+            goto manual;
+            break;
+        case 'g':
+            operation_mode = GPS_ONLY;
+            break;
+        case 'b':
+            operation_mode = GPS_AND_BATTERY;
+            break;
+        case 'e':
+            strcpy(email, optarg);
+            email_set = true;
+            break;
+        default:
+            goto manual;
+        }
+    }
+
+
     // read the compressed payload of the sensor
     size_t buffer_size;
     size_t message_size;
@@ -89,6 +132,7 @@ int main(int argc, char *argv[])
     // get first timestamp to put in the file name
     char first_timestamp[80];
     struct tm  ts; uint32_t time_stamp;
+
     time_stamp = *((uint32_t *)uncompressed_payload_buffer);
     ts = *localtime((time_t *)&time_stamp);
     strftime(first_timestamp, sizeof(first_timestamp), "%Y-%m-%d_%H.%M.%S", &ts);
@@ -98,13 +142,10 @@ int main(int argc, char *argv[])
     sprintf(csv_output_filename, "/tmp/sensors-%s.csv", first_timestamp);
     FILE *csv_fd = fopen(csv_output_filename, "w");
 
-#if (OPERARION_MODE == GPS_AND_BATTERY)
-    fprintf(csv_fd, "Time Stamp, Latitude, Longitude, Vbatt, Abatt, SOC\n");
-#endif
-#if (OPERARION_MODE == GPS_ONLY)
-    fprintf(csv_fd, "Time Stamp, Latitude, Longitude\n");
-#endif
-
+    if (operation_mode == GPS_AND_BATTERY)
+        fprintf(csv_fd, "Time Stamp, Latitude, Longitude, Vbatt, Abatt, SOC\n");
+    if (operation_mode == GPS_ONLY)
+        fprintf(csv_fd, "Time Stamp, Latitude, Longitude\n");
 
     uint8_t *buffer = uncompressed_payload_buffer;
 
@@ -112,39 +153,39 @@ int main(int argc, char *argv[])
     {
         uint8_t soc;
         float lat, lon, vbatt, abatt;
+        struct tm  ts; uint32_t time_stamp;
 
         char       buf[80];
         time_stamp = *((uint32_t *)buffer);
+        printf("timestamp: %u\n", time_stamp);
         ts = *localtime((time_t *)&time_stamp);
 // strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
         strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
         lat = *((float *) (buffer + 4));
         lon = *((float *) (buffer + 8));
-#if OPERATION_MODE == GPS_AND_BATTERY
-        vbatt = *((float *) (buffer + 12));
-        abatt = *((float *) (buffer + 16));
-        soc = *((uint8_t *) (buffer + 20));
+        if (operation_mode == GPS_AND_BATTERY)
+        {
+            vbatt = *((float *) (buffer + 12));
+            abatt = *((float *) (buffer + 16));
+            soc = *((uint8_t *) (buffer + 20));
 
-        fprintf(csv_fd, "%s,%f,%f,%f,%f,%hhu\n", buf, lat, lon, vbatt, abatt, soc);
-        buffer = buffer + 21;
-#endif
-#if OPERATION_MODE == GPS_ONLY
-        fprintf(csv_fd, "%s,%f,%f\n", buf, lat, lon);
-        buffer = buffer + 12;
-#endif
+            fprintf(csv_fd, "%s,%f,%f,%f,%f,%hhu\n", buf, lat, lon, vbatt, abatt, soc);
+            buffer = buffer + 21;
+        }
+        if (operation_mode == GPS_ONLY)
+        {
+            fprintf(csv_fd, "%s,%f,%f\n", buf, lat, lon);
+            buffer = buffer + 12;
+        }
     }
     fclose(csv_fd);
 
     free(uncompressed_payload_buffer);
 
-    // prepare to send email...
-    char *email = NULL;
-    if (argc > 1)
-        email = argv[1];
 
     char mail_cmd[CMD_LENGTH];
 
-    if (email != NULL)
+    if (email_set == true)
     {
         sprintf(mail_cmd, "echo HERMES monitoring system email | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" \"%s\"", csv_output_filename, email);
         printf("%s\n", mail_cmd);
@@ -155,7 +196,7 @@ int main(int argc, char *argv[])
         sprintf(mail_cmd, "echo HERMES monitoring system email | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" %s", csv_output_filename, EMAIL);
         printf("%s\n", mail_cmd);
         system(mail_cmd);
-        unlink(csv_output_filename);
+//        unlink(csv_output_filename);
         printf("Output is at: %s\n", csv_output_filename);
     }
 
