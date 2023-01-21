@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     // skip the first line
     while (getc(fin) != '\n');
 
-    while (fscanf(fin, "%u,%f,%f,%f,%f,%hhu\n", &time_stamp, &lat, &lon, &vbatt, &abatt, &soc) != EOF)
+    while (fscanf(fin, "%u,%f,%f,%f,%f,%hhu\n", &time_stamp, &lat, &lon, &vbatt, &abatt, &soc) > 0)
     {
         // printf("%u,%f,%f,%f,%f,%hhu\n", time_stamp, lat, lon, vbatt, abatt, soc);
         fwrite(&time_stamp, 4, 1, fout);
@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
     sprintf(compressed_payload_filename, "/tmp/enc_sensors.paq.%d", getpid ());
     char cmd_compress[CMD_LENGTH];
     sprintf(cmd_compress, "paq8px -3 %s %s", raw_filename, compressed_payload_filename);
+    system(cmd_compress);
     unlink(raw_filename);
 
     // sent over uux
