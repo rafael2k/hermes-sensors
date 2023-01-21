@@ -26,7 +26,6 @@
 #include <unistd.h>
 #include <time.h>
 
-// set to 1 just one of above...
 #define GPS_ONLY 0
 #define GPS_AND_BATTERY 1
 
