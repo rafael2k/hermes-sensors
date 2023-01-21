@@ -157,7 +157,6 @@ int main(int argc, char *argv[])
 
         char       buf[80];
         time_stamp = *((uint32_t *)buffer);
-        printf("timestamp: %u\n", time_stamp);
         ts = *localtime((time_t *)&time_stamp);
 // strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
         strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);

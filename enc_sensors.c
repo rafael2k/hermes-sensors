@@ -68,7 +68,13 @@ int main(int argc, char *argv[])
 
     // sent over uux
     char cmd_string[MAX_FILENAME];
-    sprintf(cmd_string, "uux -r - gw\\!dec_sensors < %s", compressed_payload_filename);
+#if OPERATION_MODE == GPS_AND_BATTERY
+    sprintf(cmd_string, "uux -r - gw\\!dec_sensors -b < %s", compressed_payload_filename);
+#endif
+#if OPERATION_MODE == GPS_ONLY
+    sprintf(cmd_string, "uux -r - gw\\!dec_sensors -g < %s", compressed_payload_filename);
+#endif
+
     printf("%s\n", cmd_string);
     system(cmd_string);
 
