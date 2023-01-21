@@ -48,7 +48,7 @@ while True:
 
     time.sleep(max(0, next_time - time.time()))
 
-    fd.write(datetime.datetime.utcnow().strftime("%s") + ",")
+    fd.write(datetime.datetime.now().strftime("%s") + ",")
     fd.write(str(agps_thread.data_stream.lat) + ",")
     fd.write(str(agps_thread.data_stream.lon) + ",")
     fd.write(str(controller.get_battery_voltage()) + ',')
