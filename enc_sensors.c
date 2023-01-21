@@ -7,7 +7,8 @@
 #define GPS_ONLY 0
 #define GPS_AND_BATTERY 1
 
-#define OPERARION_MODE GPS_AND_BATTERY
+// #define OPERATION_MODE GPS_AND_BATTERY
+#define OPERATION_MODE GPS_ONLY
 
 #define MAX_FILENAME 4096
 #define CMD_LENGTH 4096
@@ -36,15 +37,22 @@ int main(int argc, char *argv[])
     // skip the first line
     while (getc(fin) != '\n');
 
+#if OPERATION_MODE == GPS_AND_BATTERY
     while (fscanf(fin, "%u,%f,%f,%f,%f,%hhu\n", &time_stamp, &lat, &lon, &vbatt, &abatt, &soc) > 0)
+#endif
+#if OPERATION_MODE == GPS_ONLY
+    while (fscanf(fin, "%u,%f,%f\n", &time_stamp, &lat, &lon) > 0)
+#endif
     {
         // printf("%u,%f,%f,%f,%f,%hhu\n", time_stamp, lat, lon, vbatt, abatt, soc);
         fwrite(&time_stamp, 4, 1, fout);
         fwrite(&lat, 4, 1, fout);
         fwrite(&lon, 4, 1, fout);
+#if OPERATION_MODE == GPS_AND_BATTERY
         fwrite(&vbatt, 4, 1, fout);
         fwrite(&abatt, 4, 1, fout);
         fwrite(&soc, 1, 1, fout);
+#endif
     }
     fclose(fin);
     fclose(fout);

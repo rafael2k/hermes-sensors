@@ -31,7 +31,8 @@
 
 #define EMAIL "rafael@riseup.net"
 
-#define OPERARION_MODE GPS_AND_BATTERY
+// #define OPERATION_MODE GPS_AND_BATTERY
+#define OPERATION_MODE GPS_ONLY
 
 #define BUF_SIZE 4096
 #define MAX_FILENAME 4096
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
     fprintf(csv_fd, "Time Stamp, Latitude, Longitude, Vbatt, Abatt, SOC\n");
 #endif
 #if (OPERARION_MODE == GPS_ONLY)
-    fprintf(csv_fd, "Time Stamp, Latitude6, Longitude\n");
+    fprintf(csv_fd, "Time Stamp, Latitude, Longitude\n");
 #endif
 
 
@@ -114,14 +115,18 @@ int main(int argc, char *argv[])
         strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
         lat = *((float *) (buffer + 4));
         lon = *((float *) (buffer + 8));
+#if OPERATION_MODE == GPS_AND_BATTERY
         vbatt = *((float *) (buffer + 12));
         abatt = *((float *) (buffer + 16));
         soc = *((uint8_t *) (buffer + 20));
 
         fprintf(csv_fd, "%s,%f,%f,%f,%f,%hhu\n", buf, lat, lon, vbatt, abatt, soc);
-
         buffer = buffer + 21;
-
+#endif
+#if OPERATION_MODE == GPS_ONLY
+        fprintf(csv_fd, "%s,%f,%f\n", buf, lat, lon);
+        buffer = buffer + 12;
+#endif
     }
     fclose(csv_fd);
 
