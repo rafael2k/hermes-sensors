@@ -64,6 +64,5 @@ int main(int argc, char *argv[])
     printf("%s\n", cmd_string);
     system(cmd_string);
 
-    //unlink(compressed_payload_filename);
-
+    unlink(compressed_payload_filename);
 }

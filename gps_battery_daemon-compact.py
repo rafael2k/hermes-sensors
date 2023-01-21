@@ -6,8 +6,6 @@ from gps3.agps3threaded import AGPS3mechanism
 from epevermodbus.driver import EpeverChargeController
 
 
-destination_email="rafael@riseup.net"
-
 delay = 1 # delay between each sampling
 time_to_create_dump = 3600 # time in seconds between each report
 
