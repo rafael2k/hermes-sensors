@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+// for multiple emails, use space as separator
 #define EMAIL "rafael@riseup.net"
 
 #define GPS_ONLY 0
