@@ -28,13 +28,15 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define EMAIL "rafael@riseup.net"
+
 #define GPS_ONLY 0
 #define GPS_AND_BATTERY 1
 
-#define EMAIL "rafael@riseup.net"
-
-// #define OPERATION_MODE GPS_AND_BATTERY
+#ifndef OPERATION_MODE
 #define OPERATION_MODE GPS_ONLY
+#endif
+
 
 #define BUF_SIZE 4096
 #define MAX_FILENAME 4096

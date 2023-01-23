@@ -4,19 +4,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-// #define GPS_ONLY 0
-// #define GPS_AND_BATTERY 1
-
-#ifdef GPS_ONLY
-#define OPERATION_MODE 0
-#endif
-
-#ifdef GPS_AND_BATTERY
-#define OPERATION_MODE 1
-#endif
+#define GPS_ONLY 0
+#define GPS_AND_BATTERY 1
 
 #ifndef OPERATION_MODE
-#define OPERATION_MODE 0
+#define OPERATION_MODE GPS_ONLY
 #endif
 
 #define MAX_FILENAME 4096
