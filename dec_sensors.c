@@ -29,7 +29,7 @@
 #include <string.h>
 
 // for multiple emails, use space as separator
-#define EMAIL "rafael@riseup.net"
+#define EMAIL "karatelemetry@gmail.com"
 
 #define GPS_ONLY 0
 #define GPS_AND_BATTERY 1
