@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
             temp = *((float *) (buffer + 36));
             soc = *((uint8_t *) (buffer + 40));
 
-            fprintf(csv_fd, "%s,%f,%f,%f,%f,%hhu\n", buf, lat, lon, vbatt, abatt, vload, aload, vsolar, asolar, temp, soc);
+            fprintf(csv_fd, "%s,%f,%f,%f,%f,%f,%f,%f,%f,%f,%hhu\n", buf, lat, lon, vbatt, abatt, vload, aload, vsolar, asolar, temp, soc);
             buffer = buffer + 41;
         }
         if (operation_mode == GPS_ONLY)
