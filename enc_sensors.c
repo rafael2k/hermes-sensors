@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
 
     uint32_t time_stamp;
     uint8_t soc;
-    float lat, lon, vbatt, abatt;
+    float lat, lon, vbatt, abatt, vload, aload, vsolar, asolar, temp;
     // skip the first line
     while (getc(fin) != '\n');
 
 #if OPERATION_MODE == GPS_AND_BATTERY
-    while (fscanf(fin, "%u,%f,%f,%f,%f,%hhu\n", &time_stamp, &lat, &lon, &vbatt, &abatt, &soc) > 0)
+    while (fscanf(fin, "%u,%f,%f,%f,%f,%hhu\n", &time_stamp, &lat, &lon, &vbatt, &abatt, &vload, &aload, &vsolar, &asolar, &temp, &soc) > 0)
 #endif
 #if OPERATION_MODE == GPS_ONLY
     while (fscanf(fin, "%u,%f,%f\n", &time_stamp, &lat, &lon) > 0)
@@ -52,6 +52,11 @@ int main(int argc, char *argv[])
 #if OPERATION_MODE == GPS_AND_BATTERY
         fwrite(&vbatt, 4, 1, fout);
         fwrite(&abatt, 4, 1, fout);
+        fwrite(&vload, 4, 1, fout);
+        fwrite(&aload, 4, 1, fout);
+        fwrite(&vsolar, 4, 1, fout);
+        fwrite(&asolar, 4, 1, fout);
+        fwrite(&temp, 4, 1, fout);
         fwrite(&soc, 1, 1, fout);
 #endif
     }

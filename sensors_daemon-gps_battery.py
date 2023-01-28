@@ -9,7 +9,7 @@ from epevermodbus.driver import EpeverChargeController
 delay = 1 # delay between each sampling
 time_to_create_dump = 3600 # time in seconds between each report
 
-path="/var/spool/gps_battery/"
+path="/var/spool/sensors/"
 
 agps_thread = AGPS3mechanism()  # Instantiate AGPS3 Mechanisms
 agps_thread.stream_data()  # From localhost (), or other hosts, by example, (host='gps.ddns.net')
@@ -20,7 +20,7 @@ controller = EpeverChargeController("/dev/ttyUSB1", 1)
 try:
     os.mkdir(path)
 except OSError as error:
-    print("Directory" + path + " already created. Good.")
+    print("Directory " + path + " already created. Good.")
 
 time.sleep(1)
 next_time = time.time() + delay
@@ -29,7 +29,8 @@ counter = 0
 ct = datetime.datetime.now().isoformat(timespec='minutes')
 path_file = os.path.join(path, ct + ".csv")
 fd = open(path_file, "w", 1)
-fd.write("Time Stamp, Latitude, Longitude, Vbatt, Abatt, SOC\n")
+fd.write("Time Stamp, Latitude, Longitude, Vbatt, Abatt, Vload, Aload, Vsolar, Asolar, Temp, SOC\n")
+
 
 while True:
 
@@ -42,7 +43,7 @@ while True:
         ct = datetime.datetime.now().isoformat(timespec='minutes')
         path_file = os.path.join(path, ct + ".csv")
         fd = open(path_file,"w", 1)
-        fd.write("Time Stamp, Latitude, Longitude, Vbatt, Abatt, SOC\n")
+        fd.write("Time Stamp, Latitude, Longitude, Vbatt, Abatt, Vload, Aload, Vsolar, Asolar, Temp, SOC\n")
         counter = 0
 
 
@@ -53,12 +54,12 @@ while True:
     fd.write(str(agps_thread.data_stream.lon) + ",")
     fd.write(str(controller.get_battery_voltage()) + ',')
     fd.write(str(controller.get_battery_current()) + ',')
+    fd.write(str(controller.get_load_voltage()) + ',')
+    fd.write(str(controller.get_load_current()) + ',')
+    fd.write(str(controller.get_solar_voltage()) + ',')
+    fd.write(str(controller.get_solar_current()) + ',')
+    fd.write(str(controller.get_controller_temperature()) + ',')
     fd.write(str(controller.get_battery_state_of_charge()) + "\n")
 
     next_time += delay
     counter += 1
-# controller.get_solar_voltage
-# controller.get_load_voltage
-#
-# controller.get_solar_current
-# controller.get_load_current

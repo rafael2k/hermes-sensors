@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
     FILE *csv_fd = fopen(csv_output_filename, "w");
 
     if (operation_mode == GPS_AND_BATTERY)
-        fprintf(csv_fd, "Time Stamp, Latitude, Longitude, Vbatt, Abatt, SOC\n");
+        fprintf(csv_fd, "Time Stamp, Latitude, Longitude, Vbatt, Abatt, Vload, Aload, Vsolar, Asolar, Temp, SOC\n");
     if (operation_mode == GPS_ONLY)
         fprintf(csv_fd, "Time Stamp, Latitude, Longitude\n");
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
     while (buffer < uncompressed_payload_buffer + uncompressed_payload_size)
     {
         uint8_t soc;
-        float lat, lon, vbatt, abatt;
+        float lat, lon, vbatt, abatt, vload, aload, vsolar, asolar, temp;
         struct tm  ts; uint32_t time_stamp;
 
         char       buf[80];
@@ -169,10 +169,15 @@ int main(int argc, char *argv[])
         {
             vbatt = *((float *) (buffer + 12));
             abatt = *((float *) (buffer + 16));
-            soc = *((uint8_t *) (buffer + 20));
+            vload = *((float *) (buffer + 20));
+            aload = *((float *) (buffer + 24));
+            vsolar = *((float *) (buffer + 28));
+            asolar = *((float *) (buffer + 32));
+            temp = *((float *) (buffer + 36));
+            soc = *((uint8_t *) (buffer + 40));
 
-            fprintf(csv_fd, "%s,%f,%f,%f,%f,%hhu\n", buf, lat, lon, vbatt, abatt, soc);
-            buffer = buffer + 21;
+            fprintf(csv_fd, "%s,%f,%f,%f,%f,%hhu\n", buf, lat, lon, vbatt, abatt, vload, aload, vsolar, asolar, temp, soc);
+            buffer = buffer + 41;
         }
         if (operation_mode == GPS_ONLY)
         {

@@ -18,7 +18,7 @@ agps_thread.run_thread()  # Throttle time to sleep after an empty lookup, defaul
 try:
     os.mkdir(path)
 except OSError as error:
-    print("Directory" + path + " already created. Good.")
+    print("Directory " + path + " already created. Good.")
 
 time.sleep(1)
 next_time = time.time() + delay

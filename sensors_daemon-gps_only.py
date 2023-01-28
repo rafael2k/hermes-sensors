@@ -7,7 +7,7 @@ from gps3.agps3threaded import AGPS3mechanism
 delay = 1 # delay between each sampling
 time_to_create_dump = 3600 # time in seconds between each report
 
-path="/var/spool/gps/"
+path="/var/spool/sensors/"
 
 agps_thread = AGPS3mechanism()  # Instantiate AGPS3 Mechanisms
 agps_thread.stream_data()  # From localhost (), or other hosts, by example, (host='gps.ddns.net')
@@ -16,7 +16,7 @@ agps_thread.run_thread()  # Throttle time to sleep after an empty lookup, defaul
 try:
     os.mkdir(path)
 except OSError as error:
-    print("Directory" + path + " already created. Good.")
+    print("Directory " + path + " already created. Good.")
 
 time.sleep(1)
 next_time = time.time() + delay
