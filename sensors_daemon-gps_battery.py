@@ -50,8 +50,16 @@ while True:
     time.sleep(max(0, next_time - time.time()))
 
     fd.write(datetime.datetime.now().strftime("%s") + ",")
-    fd.write(str(agps_thread.data_stream.lat) + ",")
-    fd.write(str(agps_thread.data_stream.lon) + ",")
+    lat = str(agps_thread.data_stream.lat)
+    if lat == "n/a":
+        fd.write("0,")
+    else:
+        fd.write(lat + ",")
+    lon = str(agps_thread.data_stream.lon)
+    if lon == "n/a":
+        fd.write("0,")
+    else:
+        fd.write(lon + ",")
     fd.write(str(controller.get_battery_voltage()) + ',')
     fd.write(str(controller.get_battery_current()) + ',')
     fd.write(str(controller.get_load_voltage()) + ',')
