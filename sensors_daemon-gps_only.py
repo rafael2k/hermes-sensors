@@ -53,9 +53,9 @@ while True:
         fd.write(lat + ",")
     lon = str(agps_thread.data_stream.lon)
     if lon == "n/a":
-        fd.write("0,")
+        fd.write("0\n")
     else:
-        fd.write(lon + ",")
+        fd.write(lon + "\n")
 
     next_time += delay
     counter += 1
