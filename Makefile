@@ -28,16 +28,18 @@ enc_sensors: enc_sensors.c
 	$(CC) $(CFLAGS) enc_sensors.c -o enc_sensors
 
 install_gps_only: sensors_daemon-gps_only.py sensors.service enc_sensors dec_sensors
-	install -D dec_sensors /usr/bin/dec_sensors
-	install -D enc_sensors /usr/bin/enc_sensors
-	install -D sensors_daemon-gps_only.py /usr/bin/sensors_daemon.py
+	install -D dec_sensors $(DESTDIR)/usr/bin/dec_sensors
+	install -D enc_sensors $(DESTDIR)/usr/bin/enc_sensors
+	install -D sensors_daemon-gps_only.py $(DESTDIR)/usr/bin/sensors_daemon.py
 	install -m 644 -D sensors.service $(DESTDIR)/etc/systemd/system/sensors.service
+	install -m 644 -D config/sensors.ini $(DESTDIR)/etc/sbitx/sensors.ini
 
 install_gps_battery: sensors_daemon-gps_battery.py sensors.service enc_sensors dec_sensors
-	install -D dec_sensors /usr/bin/dec_sensors
-	install -D enc_sensors /usr/bin/enc_sensors
-	install -D sensors_daemon-gps_battery.py /usr/bin/sensors_daemon.py
+	install -D dec_sensors $(DESTDIR)/usr/bin/dec_sensors
+	install -D enc_sensors $(DESTDIR)/usr/bin/enc_sensors
+	install -D sensors_daemon-gps_battery.py $(DESTDIR)/usr/bin/sensors_daemon.py
 	install -m 644 -D sensors.service $(DESTDIR)/etc/systemd/system/sensors.service
+	install -m 644 -D config/sensors.ini $(DESTDIR)/etc/sbitx/sensors.ini
 
 install:
 	install -D dec_sensors /usr/bin/dec_sensors

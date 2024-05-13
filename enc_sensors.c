@@ -17,13 +17,18 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc < 1)
+    if (argc <= 1)
     {
-        fprintf(stderr, "Syntax: %s input.csv\n", argv[0]);
+        fprintf(stderr, "Syntax: %s input.csv [destination_email]\n", argv[0]);
         return -1;
     }
 
     char *input_file = argv[1];
+
+    char *email = NULL;
+    if (argc >= 3)
+        email = argv[2];
+
     // csv input
     FILE *fin = fopen(input_file, "r");
 
@@ -75,10 +80,10 @@ int main(int argc, char *argv[])
     // sent over uux
     char cmd_string[MAX_FILENAME];
 #if OPERATION_MODE == GPS_AND_BATTERY
-    sprintf(cmd_string, "uux -r - gw\\!dec_sensors -b < %s", compressed_payload_filename);
+    sprintf(cmd_string, "uux -r - gw\\!dec_sensors -b %s%s< %s", email ? "-e " : "", email ? email : "", compressed_payload_filename);
 #endif
 #if OPERATION_MODE == GPS_ONLY
-    sprintf(cmd_string, "uux -r - gw\\!dec_sensors -g < %s", compressed_payload_filename);
+    sprintf(cmd_string, "uux -r - gw\\!dec_sensors -g %s%s < %s", email ? "-e " : "", email ? email : "", compressed_payload_filename);
 #endif
 
     printf("%s\n", cmd_string);

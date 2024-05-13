@@ -29,7 +29,7 @@
 #include <string.h>
 
 // for multiple emails, use space as separator
-#define EMAIL "karatelemetry@gmail.com"
+#define EMAIL "test@domain.com"
 
 #define GPS_ONLY 0
 #define GPS_AND_BATTERY 1
@@ -199,8 +199,9 @@ int main(int argc, char *argv[])
         system(mail_cmd);
         unlink(csv_output_filename);
     }
-    else {
-        sprintf(mail_cmd, "echo HERMES monitoring system email | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" %s", csv_output_filename, EMAIL);
+    else
+    {
+        sprintf(mail_cmd, "echo HERMES monitoring system email | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" \"%s\"", csv_output_filename, EMAIL);
         printf("%s\n", mail_cmd);
         system(mail_cmd);
         unlink(csv_output_filename);

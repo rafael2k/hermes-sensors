@@ -2,10 +2,18 @@
 import os
 import datetime
 import time
+import configparser
+
 from gps3.agps3threaded import AGPS3mechanism
 
-delay = 1 # delay between each sampling
-time_to_create_dump = 3600 # time in seconds between each report
+config = configparser.ConfigParser()
+config.read('/etc/sbitx/sensors.ini')
+
+delay = config.getint('main', 'sample_time', fallback=1) # delay between each sampling
+time_to_create_dump = config.getint('main', 'time_per_file', fallback=3600)  # time in seconds between each report
+email = config.get('main', 'email', fallback='admin@hermes.radio') # destination email of the data
+
+# print ('sample_time: ' + str(delay) + '\ntime_to_create_dump: ' + str(time_to_create_dump) + '\nemail: ' + email )
 
 path="/var/spool/sensors/"
 
@@ -31,7 +39,7 @@ while True:
 
     if counter == time_to_create_dump:
         fd.close()
-        cmd_string = 'enc_sensors ' + path_file + ' &'
+        cmd_string = 'enc_sensors ' + path_file + ' ' + email + ' &'
         print(cmd_string)
         os.system(cmd_string);
 
@@ -59,8 +67,3 @@ while True:
 
     next_time += delay
     counter += 1
-# controller.get_solar_voltage
-# controller.get_load_voltage
-#
-# controller.get_solar_current
-# controller.get_load_current
