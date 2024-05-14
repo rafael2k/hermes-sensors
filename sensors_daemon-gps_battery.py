@@ -36,7 +36,7 @@ fd.write("Time Stamp, Latitude, Longitude, Vbatt, Abatt, Vload, Aload, Vsolar, A
 
 while True:
 
-    if counter == time_to_create_dump:
+    if counter >= time_to_create_dump:
         fd.close()
         cmd_string = 'enc_sensors ' + path_file + ' ' + email + ' &'
         print(cmd_string)
@@ -72,4 +72,4 @@ while True:
     fd.write(str(controller.get_battery_state_of_charge()) + "\n")
 
     next_time += delay
-    counter += 1
+    counter += delay

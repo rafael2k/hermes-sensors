@@ -37,7 +37,7 @@ fd.write("Time Stamp, Latitude, Longitude\n")
 
 while True:
 
-    if counter == time_to_create_dump:
+    if counter >= time_to_create_dump:
         fd.close()
         cmd_string = 'enc_sensors ' + path_file + ' ' + email + ' &'
         print(cmd_string)
@@ -66,4 +66,4 @@ while True:
         fd.write(lon + "\n")
 
     next_time += delay
-    counter += 1
+    counter += delay
