@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     }
     fclose(fin);
     fclose(fout);
-    unlink(input_file);
+    // unlink(input_file);
 
     // compress the file
     char compressed_payload_filename[MAX_FILENAME];
