@@ -3,8 +3,19 @@ import os
 import datetime
 import time
 import configparser
+import signal
+import sys
+import platform
 
 from gps3.agps3threaded import AGPS3mechanism
+
+emergency = False
+
+def emergency_handler(sig, frame):
+    emergency = True
+
+signal.signal(signal.SIGUSR1, emergency_handler)
+
 
 config = configparser.ConfigParser()
 config.read('/etc/sbitx/sensors.ini')
@@ -37,9 +48,13 @@ fd.write("Time Stamp, Latitude, Longitude\n")
 
 while True:
 
-    if counter >= time_to_create_dump:
+    if counter >= time_to_create_dump or emergency == True:
         fd.close()
-        cmd_string = 'enc_sensors ' + path_file + ' ' + email + ' &'
+        if emergency == True:
+            cmd_string = 'enc_sensors -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
+            emergency = False
+        else:
+            cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
         print(cmd_string)
         os.system(cmd_string);
 

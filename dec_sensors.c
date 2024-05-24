@@ -1,5 +1,6 @@
-/* uuxsensor
- * Copyright (C) 2023 Rhizomatica
+/* hermes-sensors
+ *
+ * Copyright (C) 2023-2024 Rhizomatica
  * Author: Rafael Diniz <rafael@riseup.net>
  *
  * This is free software; you can redistribute it and/or modify
@@ -28,8 +29,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-// for multiple emails, use space as separator
-#define EMAIL "test@domain.com"
 
 #define GPS_ONLY 0
 #define GPS_AND_BATTERY 1
@@ -48,18 +47,22 @@ int main(int argc, char *argv[])
 {
     int operation_mode;
     char email[BUF_SIZE];
-    bool email_set = false;
+    char from[BUF_SIZE];
+    bool emergency_flag = false;
+    bool from_set = false;
 
     if (argc < 2)
     {
     manual:
-        fprintf(stderr, "Usage: \n%s [-g -b] [-e e-mail]\n", argv[0]);
+        fprintf(stderr, "Usage: \n%s [-g -b] [-e e-mail] [-f e-mail] [-s]\n", argv[0]);
         fprintf(stderr, "%s -h\n", argv[0]);
         fprintf(stderr, "\nOptions:\n");
         fprintf(stderr, " -g                 Runs GPS_ONLY mode\n");
         fprintf(stderr, " -b                 Runs GPS_AND_BATTERY mode\n");
-        fprintf(stderr, " -h                 Prints this help.\n");
-        fprintf(stderr, " -e e-mail          Optional field. Sets the destination e-mail address\n\n");
+        fprintf(stderr, " -s                 Enable emergency flag (SOS)\n");
+        fprintf(stderr, " -e e-mail          Sets the destination e-mail address\n");
+        fprintf(stderr, " -f e-mail          Sets the source e-mail address\n");
+        fprintf(stderr, " -h                 Prints this help.\n\n");
         exit(EXIT_FAILURE);
     }
 
@@ -77,9 +80,15 @@ int main(int argc, char *argv[])
         case 'b':
             operation_mode = GPS_AND_BATTERY;
             break;
+        case 's':
+            emergency_flag = true;
+            break;
         case 'e':
             strcpy(email, optarg);
-            email_set = true;
+            break;
+        case 'f':
+            strcpy(from, optarg);
+            from_set = true;
             break;
         default:
             goto manual;
@@ -140,9 +149,13 @@ int main(int argc, char *argv[])
     ts = *localtime((time_t *)&time_stamp);
     strftime(first_timestamp, sizeof(first_timestamp), "%Y-%m-%d_%H.%M.%S", &ts);
 
+    // get hostname from email
+    char *station_name = strstr(from, "@");
+    station_name++;
+
     // now write the csv
     char csv_output_filename[MAX_FILENAME];
-    sprintf(csv_output_filename, "/tmp/sensors-%s.csv", first_timestamp);
+    sprintf(csv_output_filename, "/tmp/%s%s-%s.csv", emergency_flag?"SOS-":"", station_name, first_timestamp);
     FILE *csv_fd = fopen(csv_output_filename, "w");
 
     if (operation_mode == GPS_AND_BATTERY)
@@ -192,24 +205,16 @@ int main(int argc, char *argv[])
 
     char mail_cmd[CMD_LENGTH];
 
-    if (email_set == true)
-    {
-        sprintf(mail_cmd, "echo HERMES monitoring system email | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" \"%s\"", csv_output_filename, email);
-        printf("%s\n", mail_cmd);
-        system(mail_cmd);
-        unlink(csv_output_filename);
-    }
-    else
-    {
-        sprintf(mail_cmd, "echo HERMES monitoring system email | mail --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" \"%s\"", csv_output_filename, EMAIL);
-        printf("%s\n", mail_cmd);
-        system(mail_cmd);
-        unlink(csv_output_filename);
-//        printf("Output is at: %s\n", csv_output_filename);
-    }
+    // TODO: write station in the subject, and add a SOS in case of emergency
+    sprintf(mail_cmd, "echo %sHERMES GPS DATA | mail %s%s --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" \"%s\"", emergency_flag?"SOS ": "",
+            from_set?"-r " : "", from_set?from:"",
+            csv_output_filename, email);
+    printf("%s\n", mail_cmd); // TODO: Remove debug
+    system(mail_cmd);
+    unlink(csv_output_filename);
 
     unlink(compressed_payload_filename);
     unlink(uncompressed_payload_filename);
 
-
+    return 0;
 }

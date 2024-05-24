@@ -1,8 +1,31 @@
+/* hermes-sensors
+ *
+ * Copyright (C) 2023-2024 Rhizomatica
+ * Author: Rafael Diniz <rafael@riseup.net>
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define GPS_ONLY 0
 #define GPS_AND_BATTERY 1
@@ -17,17 +40,50 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc <= 1)
+    bool emergency_flag = false;
+    char *input_file = NULL;
+    char *email = NULL;
+    char *from = NULL;
+
+    if (argc < 2)
     {
-        fprintf(stderr, "Syntax: %s input.csv [destination_email]\n", argv[0]);
-        return -1;
+    manual:
+        fprintf(stderr, "Usage: \n%s [-i input.csv] [-e to_email] [-f from_email] [-s]\n", argv[0]);
+        fprintf(stderr, "%s -h\n", argv[0]);
+        fprintf(stderr, "\nOptions:\n");
+        fprintf(stderr, " -i input.csv       Input CSV path\n");
+        fprintf(stderr, " -e to_email        Destination email (To)\n");
+        fprintf(stderr, " -f from_email      Source email (From)\n");
+        fprintf(stderr, " -s                 Enable emergency flag (SOS)\n");
+        fprintf(stderr, " -h                 Prints this help.\n\n");
+
+        exit(EXIT_FAILURE);
     }
 
-    char *input_file = argv[1];
-
-    char *email = NULL;
-    if (argc >= 3)
-        email = argv[2];
+    int opt;
+    while ((opt = getopt(argc, argv, "i:e:f:sh")) != -1)
+    {
+        switch (opt)
+        {
+        case 'h':
+            goto manual;
+            break;
+        case 's':
+            emergency_flag = true;
+            break;
+        case 'i':
+            input_file = optarg;
+            break;
+        case 'e':
+            email = optarg;
+            break;
+        case 'f':
+            from = optarg;
+            break;
+        default:
+            goto manual;
+        }
+    }
 
     // csv input
     FILE *fin = fopen(input_file, "r");
@@ -67,6 +123,7 @@ int main(int argc, char *argv[])
     }
     fclose(fin);
     fclose(fout);
+    // TODO: add an option to delete csv
     // unlink(input_file);
 
     // compress the file
@@ -79,15 +136,18 @@ int main(int argc, char *argv[])
 
     // sent over uux
     char cmd_string[MAX_FILENAME];
-#if OPERATION_MODE == GPS_AND_BATTERY
-    sprintf(cmd_string, "uux -r - gw\\!dec_sensors -b %s%s< %s", email ? "-e " : "", email ? email : "", compressed_payload_filename);
-#endif
-#if OPERATION_MODE == GPS_ONLY
-    sprintf(cmd_string, "uux -r - gw\\!dec_sensors -g %s%s < %s", email ? "-e " : "", email ? email : "", compressed_payload_filename);
-#endif
+    sprintf(cmd_string, "uux -r - gw\\!dec_sensors %s -e %s -f %s %s < %s",
+            OPERATION_MODE == GPS_AND_BATTERY ? "-b" : "-g",
+            email, from, emergency_flag ? "-s" : "",
+            compressed_payload_filename);
 
     printf("%s\n", cmd_string);
     system(cmd_string);
 
     unlink(compressed_payload_filename);
+
+    if (emergency_flag)
+        system("sudo uucico -S gw");
+
+    return 0;
 }
