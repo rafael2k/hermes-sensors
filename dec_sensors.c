@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     }
 
     int opt;
-    while ((opt = getopt(argc, argv, "hgbe:")) != -1)
+    while ((opt = getopt(argc, argv, "hgbse:f:")) != -1)
     {
         switch (opt)
         {
