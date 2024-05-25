@@ -71,7 +71,7 @@ while True:
             print(cmd_string)
             os.system(cmd_string);
 
-            fd = open(file_file, "a")
+            fd = open(path_file, "a")
             emergency = False
         time.sleep(1)
 
