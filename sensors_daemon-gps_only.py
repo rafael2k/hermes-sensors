@@ -51,10 +51,10 @@ while True:
     if counter >= time_to_create_dump or emergency == True:
         fd.close()
         if emergency == True:
-            cmd_string = 'enc_sensors -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
+            cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
             emergency = False
         else:
-            cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
+            cmd_string = 'enc_sensors -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
         print(cmd_string)
         os.system(cmd_string);
 
