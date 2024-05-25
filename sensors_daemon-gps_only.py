@@ -11,10 +11,10 @@ from gps3.agps3threaded import AGPS3mechanism
 
 emergency = False
 
-def emergency_handler(sig, frame):
+def emergency_handler(emergency, sig, frame):
     emergency = True
 
-signal.signal(signal.SIGUSR1, emergency_handler)
+signal.signal(signal.SIGUSR1, partial(emergency_handler, emergency))
 
 
 config = configparser.ConfigParser()
