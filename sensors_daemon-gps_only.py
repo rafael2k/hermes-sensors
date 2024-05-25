@@ -50,7 +50,35 @@ fd.write("Time Stamp, Latitude, Longitude\n")
 
 while True:
 
-    time.sleep(max(0, next_time - time.time()))
+    while next_time > time.time():
+        if emergency == True:
+            # write a last coordinate, the emergency one
+            fd.write(datetime.datetime.now().strftime("%s") + ",")
+            lat = str(agps_thread.data_stream.lat)
+            if lat == "n/a":
+                fd.write("0,")
+            else:
+                fd.write(lat + ",")
+            lon = str(agps_thread.data_stream.lon)
+            if lon == "n/a":
+                fd.write("0\n")
+            else:
+                fd.write(lon + "\n")
+
+            fd.close()
+            cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
+
+            print(cmd_string)
+            os.system(cmd_string);
+
+            ct = datetime.datetime.now().isoformat(timespec='minutes')
+            path_file = os.path.join(path, ct + ".csv")
+            fd = open(path_file,"w", 1)
+            fd.write("Time Stamp, Latitude, Longitude\n")
+            counter = 0
+
+            emergency = False
+        time.sleep(1)
 
     fd.write(datetime.datetime.now().strftime("%s") + ",")
     # fd.write(agps_thread.data_stream.time + ",")
@@ -69,15 +97,9 @@ while True:
     next_time += delay
     counter += delay
 
-    if counter >= time_to_create_dump or emergency == True:
+    if counter >= time_to_create_dump:
         fd.close()
-        if emergency == True:
-            print("Emergency true")
-            cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
-            emergency = False
-        else:
-            fd.close()
-            cmd_string = 'enc_sensors -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
+        cmd_string = 'enc_sensors -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
         print(cmd_string)
         os.system(cmd_string);
 
