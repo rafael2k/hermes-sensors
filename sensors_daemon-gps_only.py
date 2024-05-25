@@ -45,7 +45,7 @@ counter = 0
 
 ct = datetime.datetime.now().isoformat(timespec='minutes')
 path_file = os.path.join(path, ct + ".csv")
-fd = open(path_file,"w", 1)
+fd = open(path_file,"w")
 fd.write("Time Stamp, Latitude, Longitude\n")
 
 while True:
@@ -71,12 +71,7 @@ while True:
             print(cmd_string)
             os.system(cmd_string);
 
-            ct = datetime.datetime.now().isoformat(timespec='minutes')
-            path_file = os.path.join(path, ct + ".csv")
-            fd = open(path_file,"w", 1)
-            fd.write("Time Stamp, Latitude, Longitude\n")
-            counter = 0
-
+            fd = open(file_file, "a")
             emergency = False
         time.sleep(1)
 
@@ -105,6 +100,6 @@ while True:
 
         ct = datetime.datetime.now().isoformat(timespec='minutes')
         path_file = os.path.join(path, ct + ".csv")
-        fd = open(path_file,"w", 1)
+        fd = open(path_file,"w")
         fd.write("Time Stamp, Latitude, Longitude\n")
         counter = 0
