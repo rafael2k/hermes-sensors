@@ -206,9 +206,9 @@ int main(int argc, char *argv[])
     char mail_cmd[CMD_LENGTH];
 
     // TODO: write station in the subject, and add a SOS in case of emergency
-    sprintf(mail_cmd, "echo %sHERMES GPS DATA | mail %s%s --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"HERMES SYSTEM\" \"%s\"", emergency_flag?"SOS ": "",
+    sprintf(mail_cmd, "echo %sHERMES GPS DATA | mail %s%s --content-type=text/csv --encoding=base64 --attach=\"%s\" -s \"%s HERMES SYSTEM\" \"%s\"", emergency_flag?"SOS ": "",
             from_set?"-r " : "", from_set?from:"",
-            csv_output_filename, email);
+            csv_output_filename, emergency_flag?"SOS ": "", email);
     printf("%s\n", mail_cmd); // TODO: Remove debug
     system(mail_cmd);
     unlink(csv_output_filename);
