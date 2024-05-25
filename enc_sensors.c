@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
     unlink(compressed_payload_filename);
 
     if (emergency_flag)
-        system("sudo uucico -S gw");
+        system("sudo uucico -D -S gw");
 
     return 0;
 }
