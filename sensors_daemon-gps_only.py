@@ -11,10 +11,12 @@ from gps3.agps3threaded import AGPS3mechanism
 
 emergency = False
 
-def emergency_handler(emergency, sig, frame):
+def emergency_handler(signal, frame):
+    global emergency
     emergency = True
+    print("Emergency handler")
 
-signal.signal(signal.SIGUSR1, partial(emergency_handler, emergency))
+signal.signal(signal.SIGUSR1, emergency_handler)    
 
 
 config = configparser.ConfigParser()
@@ -48,22 +50,6 @@ fd.write("Time Stamp, Latitude, Longitude\n")
 
 while True:
 
-    if counter >= time_to_create_dump or emergency == True:
-        fd.close()
-        if emergency == True:
-            cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
-            emergency = False
-        else:
-            cmd_string = 'enc_sensors -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
-        print(cmd_string)
-        os.system(cmd_string);
-
-        ct = datetime.datetime.now().isoformat(timespec='minutes')
-        path_file = os.path.join(path, ct + ".csv")
-        fd = open(path_file,"w", 1)
-        fd.write("Time Stamp, Latitude, Longitude\n")
-        counter = 0
-
     time.sleep(max(0, next_time - time.time()))
 
     fd.write(datetime.datetime.now().strftime("%s") + ",")
@@ -82,3 +68,21 @@ while True:
 
     next_time += delay
     counter += delay
+
+    if counter >= time_to_create_dump or emergency == True:
+        fd.close()
+        if emergency == True:
+            print("Emergency true")
+            cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
+            emergency = False
+        else:
+            fd.close()
+            cmd_string = 'enc_sensors -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
+        print(cmd_string)
+        os.system(cmd_string);
+
+        ct = datetime.datetime.now().isoformat(timespec='minutes')
+        path_file = os.path.join(path, ct + ".csv")
+        fd = open(path_file,"w", 1)
+        fd.write("Time Stamp, Latitude, Longitude\n")
+        counter = 0
