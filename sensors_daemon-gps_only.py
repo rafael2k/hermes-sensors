@@ -6,8 +6,9 @@ import configparser
 import signal
 import sys
 import platform
+import socket
 
-from gps3.agps3threaded import AGPS3mechanism
+import gps
 
 emergency = False
 
@@ -26,20 +27,13 @@ delay = config.getint('main', 'sample_time', fallback=1) # delay between each sa
 time_to_create_dump = config.getint('main', 'time_per_file', fallback=3600)  # time in seconds between each report
 email = config.get('main', 'email', fallback='admin@hermes.radio') # destination email of the data
 
-# print ('sample_time: ' + str(delay) + '\ntime_to_create_dump: ' + str(time_to_create_dump) + '\nemail: ' + email )
-
 path="/var/spool/sensors/"
-
-agps_thread = AGPS3mechanism()  # Instantiate AGPS3 Mechanisms
-agps_thread.stream_data()  # From localhost (), or other hosts, by example, (host='gps.ddns.net')
-agps_thread.run_thread()  # Throttle time to sleep after an empty lookup, default 0.2 second, default daemon=True
 
 try:
     os.mkdir(path)
 except OSError as error:
     print("Directory " + path + " already created. Good.")
 
-time.sleep(1)
 next_time = time.time() + delay
 counter = 0
 
@@ -48,47 +42,59 @@ path_file = os.path.join(path, ct + ".csv")
 fd = open(path_file,"w")
 fd.write("Time Stamp, Latitude, Longitude\n")
 
-while True:
+session = gps.gps(mode=gps.WATCH_ENABLE)
+
+while  0 == session.read():
+
+    if not (gps.MODE_SET & session.valid):
+        continue
+
+    if emergency == True:
+        # write a last coordinate, the emergency one
+        fd.write(datetime.datetime.now().strftime("%s") + ",")
+        lat = str(session.fix.latitude)
+        if lat == "n/a":
+            fd.write("0,")
+        else:
+            fd.write(lat + ",")
+        lon = str(session.fix.longitude)
+        if lon == "n/a":
+            fd.write("0\n")
+        else:
+            fd.write(lon + "\n")
+
+        fd.close()
+        cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
+
+        print(cmd_string)
+        os.system(cmd_string);
+
+        fd = open(path_file, "a")
+        emergency = False
 
     while next_time > time.time():
-        if emergency == True:
-            # write a last coordinate, the emergency one
-            fd.write(datetime.datetime.now().strftime("%s") + ",")
-            lat = str(agps_thread.data_stream.lat)
-            if lat == "n/a":
-                fd.write("0,")
-            else:
-                fd.write(lat + ",")
-            lon = str(agps_thread.data_stream.lon)
-            if lon == "n/a":
-                fd.write("0\n")
-            else:
-                fd.write(lon + "\n")
-
-            fd.close()
-            cmd_string = 'enc_sensors -s -i ' +  path_file + ' -e ' + email + ' -f ' + 'root@' + platform.node() + ' &'
-
-            print(cmd_string)
-            os.system(cmd_string);
-
-            fd = open(path_file, "a")
-            emergency = False
+        if not (gps.MODE_SET & session.valid):
+            session.read()
+            continue
         time.sleep(1)
 
     fd.write(datetime.datetime.now().strftime("%s") + ",")
-    # fd.write(agps_thread.data_stream.time + ",")
 
-    lat = str(agps_thread.data_stream.lat)
-    if lat == "n/a":
-        fd.write("0,")
-    else:
+    if ((gps.isfinite(session.fix.latitude) and
+         gps.isfinite(session.fix.longitude))):
+
+        lat = str(session.fix.latitude)
         fd.write(lat + ",")
-    lon = str(agps_thread.data_stream.lon)
-    if lon == "n/a":
-        fd.write("0\n")
-    else:
+
+        lon = str(session.fix.longitude)
         fd.write(lon + "\n")
 
+        #print(lat + ',' + lon)
+    else:
+        fd.write("0,0\n")
+
+        # fd.flush()
+        
     next_time += delay
     counter += delay
 
